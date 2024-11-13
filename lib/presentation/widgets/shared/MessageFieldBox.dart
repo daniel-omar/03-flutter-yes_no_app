@@ -1,7 +1,30 @@
 import 'package:flutter/material.dart';
 
-class MessageFieldBox extends StatelessWidget {
-  const MessageFieldBox({super.key});
+class MessageFieldBox extends StatefulWidget {
+  final ValueChanged<String> onValue;
+  const MessageFieldBox({super.key, required this.onValue});
+
+  @override
+  State<MessageFieldBox> createState() => _MessageFieldBoxState();
+}
+
+class _MessageFieldBoxState extends State<MessageFieldBox> {
+  late FocusNode focusNode;
+  final textController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    focusNode = FocusNode();
+  }
+
+  @override
+  void dispose() {
+    // Clean up the focus node when the Form is disposed.
+    focusNode.dispose();
+    textController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -11,9 +34,6 @@ class MessageFieldBox extends StatelessWidget {
       borderRadius: BorderRadius.circular(15),
     );
 
-    final textController = TextEditingController();
-    final focusNode = FocusNode();
-
     final inputDecoration = InputDecoration(
       hintText: "End your message with a??",
       enabledBorder: outlineInputBorder,
@@ -22,8 +42,8 @@ class MessageFieldBox extends StatelessWidget {
       suffixIcon: IconButton(
         onPressed: () {
           final String textValue = textController.value.text;
-          print("Valor $textValue");
           textController.clear();
+          widget.onValue(textValue);
         },
         icon: const Icon(Icons.send_outlined),
       ),
@@ -37,9 +57,10 @@ class MessageFieldBox extends StatelessWidget {
       controller: textController,
       decoration: inputDecoration,
       onFieldSubmitted: (value) {
-        print('Submit value $value');
         textController.clear();
         focusNode.requestFocus();
+
+        widget.onValue(value);
       },
       // onChanged: (value) {
       //   print('Changed value $value');
